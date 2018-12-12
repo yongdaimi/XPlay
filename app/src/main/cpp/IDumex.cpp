@@ -10,6 +10,9 @@ void IDumex::Main()
 {
     while (!isExit) {
         XData data = Read();
+        if (data.size > 0) {
+            Notify(data);
+        }
         // XLOGI("IDumex::data size is: %d", data.size);
         // if (data.size <= 0) break;
     }

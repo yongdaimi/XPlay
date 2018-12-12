@@ -8,8 +8,9 @@
 
 #include "XData.h"
 #include "XThread.h"
+#include "IObserver.h"
 
-class IDumex : public XThread{
+class IDumex : public IObserver{
 
 public:
     /** 打开文件或者流媒体(rtsp, rtmp, http) */
