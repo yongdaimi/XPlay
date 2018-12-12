@@ -5,7 +5,7 @@
 #ifndef XPLAY_XLOG_H
 #define XPLAY_XLOG_H
 
-#define LOG_TAG "xp_jni"
+#define LOG_TAG "xp.chen"
 
 #ifdef ANDROID
 #include <android/log.h>

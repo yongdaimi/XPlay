@@ -6,8 +6,10 @@
 #define XPLAY_XDATA_H
 
 
-class XData {
-
+struct XData {
+    unsigned char *data;
+    int size;
+    void Drop();
 };
 
 

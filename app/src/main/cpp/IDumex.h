@@ -7,8 +7,9 @@
 
 
 #include "XData.h"
+#include "XThread.h"
 
-class IDumex {
+class IDumex : public XThread{
 
 public:
     /** 打开文件或者流媒体(rtsp, rtmp, http) */
@@ -18,6 +19,8 @@ public:
 
     /** 总时长(毫秒) */
     int totalMs = 0;
+protected:
+    void Main();
 };
 
 
