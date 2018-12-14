@@ -15,6 +15,9 @@ public:
     virtual bool Open(const char *url);
     /** 读取一帧数据, 数据由调用者处理 */
     virtual XData Read();
+    /** 获取视频流参数 */
+    virtual XParameters getVideoParams();
+
     FFDumex();
 
 private:

@@ -51,6 +51,25 @@ XData FFDumex::Read()
     return d;
 }
 
+
+XParameters FFDumex::getVideoParams()
+{
+    if (!ic) {
+        XLOGE("FFDumex:: getVideoParams() failed, ic is null");
+        return XParameters();
+    }
+    // 查找视频流对象索引
+    int videoIndex = av_find_best_stream(ic, AVMEDIA_TYPE_VIDEO, -1, -1, 0, 0);
+    if (videoIndex < 0) {
+        XLOGE("FFDumex:: getVideoParams() failed, av_find_best_stream() failed");
+        return XParameters();
+    }
+    XParameters videoParams;
+    videoParams.params = ic->streams[videoIndex]->codecpar;
+    return videoParams;
+}
+
+
 FFDumex::FFDumex()
 {
     static bool isFirst = true;

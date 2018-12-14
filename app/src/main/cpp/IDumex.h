@@ -9,6 +9,7 @@
 #include "XData.h"
 #include "XThread.h"
 #include "IObserver.h"
+#include "XParameters.h"
 
 class IDumex : public IObserver{
 
@@ -17,6 +18,8 @@ public:
     virtual bool Open(const char *url) = 0;
     /** 读取一帧数据, 数据由调用者处理 */
     virtual XData Read() = 0;
+    /** 获取视频流参数 */
+    virtual XParameters getVideoParams() = 0;
 
     /** 总时长(毫秒) */
     int totalMs = 0;
