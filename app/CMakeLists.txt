@@ -54,6 +54,11 @@ add_library( # Sets the name of the library.
              src/main/cpp/IDecoder.cpp
              src/main/cpp/FFDecoder.cpp
              src/main/cpp/XParameters.cpp
+             src/main/cpp/IVideoView.cpp
+             src/main/cpp/GLVideoView.cpp
+             src/main/cpp/XTexture.cpp
+             src/main/cpp/XShader.cpp
+             src/main/cpp/XEGL.cpp
         )
 
 # Searches for a specified prebuilt library and stores the path as a

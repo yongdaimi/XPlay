@@ -31,7 +31,8 @@ bool FFDumex::Open(const char *url)
     }
     this->totalMs = ic->duration / (AV_TIME_BASE/1000);
     XLOGI("FFDumex total ms = %d", totalMs);
-
+    getVideoParams();
+    getAudioParams();
     return true;
 }
 
@@ -48,6 +49,14 @@ XData FFDumex::Read()
     // XLOGI("pkt size: %d, pts is: %lld", pkt->size, pkt->pts);
     d.data = (unsigned char *)pkt;
     d.size = pkt->size;
+    if (pkt->stream_index == audioStreamIndex) {
+        d.isAudio = true;
+    } else if (pkt->stream_index == videoStreamIndex) {
+        d.isAudio = false;
+    } else {
+        av_packet_free(&pkt);
+        return XData();
+    }
     return d;
 }
 
@@ -64,11 +73,29 @@ XParameters FFDumex::getVideoParams()
         XLOGE("FFDumex:: getVideoParams() failed, av_find_best_stream() failed");
         return XParameters();
     }
+    videoStreamIndex = videoIndex;
     XParameters videoParams;
     videoParams.params = ic->streams[videoIndex]->codecpar;
     return videoParams;
 }
 
+XParameters FFDumex::getAudioParams()
+{
+    if (!ic) {
+        XLOGE("FFDumex:: getAudioParams() failed, ic is null");
+        return XParameters();
+    }
+    // 查找音频流对象索引
+    int audioIndex = av_find_best_stream(ic, AVMEDIA_TYPE_AUDIO, -1, -1, 0, 0);
+    if (audioIndex < 0) {
+        XLOGE("FFDumex:: getAudioParams() failed, av_find_best_stream() failed");
+        return XParameters();
+    }
+    audioStreamIndex = audioIndex;
+    XParameters audioParams;
+    audioParams.params = ic->streams[audioIndex]->codecpar;
+    return audioParams;
+}
 
 FFDumex::FFDumex()
 {

@@ -6,10 +6,10 @@
 #define XPLAY_FFDECODER_H
 
 
-#include <libavutil/frame.h>
 #include "IDecoder.h"
 
 struct AVCodecContext;
+struct AVFrame;
 class FFDecoder : public IDecoder{
 
 public:

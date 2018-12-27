@@ -34,13 +34,17 @@ bool FFDecoder::Open(XParameters params)
         return false;
     }
     XLOGI("FFDecoder:: open codec success");
-
+    if (avctx->codec_type == AVMEDIA_TYPE_AUDIO) {
+        isAudio = true;
+    } else {
+        isAudio = false;
+    }
     return true;
 }
 
 bool FFDecoder::SendPacket(XData pkt)
 {
-    if (!pkt.size || !pkt.data) {
+    if (pkt.size <= 0 || !pkt.data) {
         XLOGE("FFDecoder:: SendPacket() failed, pkt is null ");
         return false;
     }
@@ -69,13 +73,15 @@ XData FFDecoder::RecvFrame()
     }
     int ret = avcodec_receive_frame(avctx, frame);
     if (ret != 0) {
-        XLOGE("FFDecoder:: RecvFrame() failed, avcodec_receive_frame() failed ");
+        // XLOGE("FFDecoder:: RecvFrame() failed, avcodec_receive_frame() failed ");
         return XData();
     }
     XData d;
     d.data = (unsigned char *)frame;
     if (avctx->codec_type == AVMEDIA_TYPE_VIDEO) {
         d.size = (frame->linesize[0] + frame->linesize[1] + frame->linesize[2]) * frame->height;
+    } else if (avctx->codec_type == AVMEDIA_TYPE_AUDIO) {
+        d.size = av_get_bytes_per_sample((AVSampleFormat)frame->format) * frame->nb_samples * 2; // 样本字节数*单通道样本数*通道数
     }
     XLOGI("FFDecoder:: RecvFrame() decoder success");
     return d;

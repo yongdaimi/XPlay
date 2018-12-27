@@ -5,6 +5,10 @@
 #include "XLog.h"
 #include "IDecoder.h"
 #include "FFDecoder.h"
+#include "XEGL.h"
+#include "XShader.h"
+#include <android/native_window_jni.h>
+
 
 static const char *url = "/sdcard/v1080.mp4";
 
@@ -17,7 +21,6 @@ public:
 
 };
 
-
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_yuneec_android_xplay_MainActivity_stringFromJNI(
         JNIEnv* env,
@@ -27,15 +30,34 @@ Java_com_yuneec_android_xplay_MainActivity_stringFromJNI(
     IDumex *de = new FFDumex();
     bool openFlag = de->Open(url);
     if (!openFlag) return env->NewStringUTF(hello.c_str());
-    TestObserver *testObj = new TestObserver();
-    de->AddObserver(testObj);
+    // TestObserver *testObj = new TestObserver();
+    // de->AddObserver(testObj);
 
     IDecoder *vDecoder = new FFDecoder();
     vDecoder->Open(de->getVideoParams());
 
+    IDecoder *aDecoder = new FFDecoder();
+    aDecoder->Open(de->getAudioParams());
+
+    de->AddObserver(vDecoder);
+    de->AddObserver(aDecoder);
+
     de->Start();
-    XSleep(3000);
-    de->Stop();
+    vDecoder->Start();
+    aDecoder->Start();
+
+    // XSleep(3000);
+    // de->Stop();
 
     return env->NewStringUTF(hello.c_str());
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_yuneec_android_xplay_XPlay_InitView(JNIEnv *env, jobject instance, jobject surface) {
+    ANativeWindow *win = ANativeWindow_fromSurface(env, surface);
+    XEGL::Get()->Init(win);
+    XShader shader;
+    shader.Init();
+
 }

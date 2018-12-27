@@ -17,11 +17,15 @@ public:
     virtual XData Read();
     /** 获取视频流参数 */
     virtual XParameters getVideoParams();
+    /** 获取音视流参数 */
+    virtual XParameters getAudioParams();
 
     FFDumex();
 
 private:
     AVFormatContext *ic = 0;
+    int audioStreamIndex = 1;
+    int videoStreamIndex = 0;
 };
 
 

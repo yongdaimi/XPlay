@@ -20,7 +20,8 @@ public:
     virtual XData Read() = 0;
     /** 获取视频流参数 */
     virtual XParameters getVideoParams() = 0;
-
+    /** 获取音视流参数 */
+    virtual XParameters getAudioParams() = 0;
     /** 总时长(毫秒) */
     int totalMs = 0;
 protected:
