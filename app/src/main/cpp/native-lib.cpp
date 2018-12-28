@@ -7,6 +7,10 @@
 #include "FFDecoder.h"
 #include "XEGL.h"
 #include "XShader.h"
+#include "IVideoView.h"
+#include "GLVideoView.h"
+#include "IResample.h"
+#include "FFResample.h"
 #include <android/native_window_jni.h>
 
 
@@ -20,6 +24,8 @@ public:
     }
 
 };
+
+IVideoView *view  = NULL;
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_yuneec_android_xplay_MainActivity_stringFromJNI(
@@ -42,6 +48,13 @@ Java_com_yuneec_android_xplay_MainActivity_stringFromJNI(
     de->AddObserver(vDecoder);
     de->AddObserver(aDecoder);
 
+    view = new GLVideoView();
+    vDecoder->AddObserver(view);
+
+    IResample *resample = new FFResample();
+    aDecoder->AddObserver(resample);
+    resample->Open(de->getAudioParams());
+
     de->Start();
     vDecoder->Start();
     aDecoder->Start();
@@ -56,8 +69,8 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_yuneec_android_xplay_XPlay_InitView(JNIEnv *env, jobject instance, jobject surface) {
     ANativeWindow *win = ANativeWindow_fromSurface(env, surface);
-    XEGL::Get()->Init(win);
-    XShader shader;
-    shader.Init();
-
+    view->SetRender(win);
+    // XEGL::Get()->Init(win);
+    // XShader shader;
+    // shader.Init();
 }

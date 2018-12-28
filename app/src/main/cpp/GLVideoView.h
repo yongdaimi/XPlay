@@ -19,3 +19,20 @@ protected:
     XTexture    *txt = 0;
 };
 #endif //XPLAY_GLVIDEOVIEW_H
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
