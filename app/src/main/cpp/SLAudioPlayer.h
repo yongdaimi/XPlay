@@ -10,7 +10,13 @@
 
 class SLAudioPlayer : public IAudioPlayer{
 public:
-    virtual bool StartPlay(XParameters params);
+    virtual bool StartPlay(XParameters out);
+    void PlayCall(void *bufq);
+    SLAudioPlayer();
+    virtual ~SLAudioPlayer();
+
+protected:
+    unsigned char *buf = 0;
 };
 
 

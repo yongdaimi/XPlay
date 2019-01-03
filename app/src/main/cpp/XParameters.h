@@ -11,6 +11,8 @@ class XParameters {
 
 public:
     AVCodecParameters *params = 0;
+    int channels = 2; // 通道数
+    int sample_rate = 44100; // 样本率
 
 };
 

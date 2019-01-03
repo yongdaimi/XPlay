@@ -11,10 +11,12 @@
 #include "GLVideoView.h"
 #include "IResample.h"
 #include "FFResample.h"
+#include "IAudioPlayer.h"
+#include "SLAudioPlayer.h"
 #include <android/native_window_jni.h>
 
 
-static const char *url = "/sdcard/v1080.mp4";
+static const char *url = "/sdcard/1080.mp4";
 
 
 class TestObserver : public IObserver {
@@ -52,8 +54,15 @@ Java_com_yuneec_android_xplay_MainActivity_stringFromJNI(
     vDecoder->AddObserver(view);
 
     IResample *resample = new FFResample();
+    XParameters outParams = de->getAudioParams();
+    resample->Open(de->getAudioParams(), outParams);
+
     aDecoder->AddObserver(resample);
     resample->Open(de->getAudioParams());
+
+    IAudioPlayer *audioPlayer = new SLAudioPlayer();
+    audioPlayer->StartPlay(outParams);
+    resample->AddObserver(audioPlayer);
 
     de->Start();
     vDecoder->Start();

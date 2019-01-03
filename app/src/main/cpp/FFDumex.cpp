@@ -94,6 +94,8 @@ XParameters FFDumex::getAudioParams()
     audioStreamIndex = audioIndex;
     XParameters audioParams;
     audioParams.params = ic->streams[audioIndex]->codecpar;
+    audioParams.channels = ic->streams[audioIndex]->codecpar->channels;
+    audioParams.sample_rate = ic->streams[audioIndex]->codecpar->sample_rate;
     return audioParams;
 }
 
