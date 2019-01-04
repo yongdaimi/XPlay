@@ -21,6 +21,7 @@ struct XData {
     unsigned char *datas[8] = {0};
     int width = 0; // 视频宽度
     int height = 0; // 视频高度
+    int format = 0; // 数据格式
     bool Alloc(int size, const char *data = 0);
     void Drop();
 };

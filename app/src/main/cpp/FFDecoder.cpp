@@ -8,19 +8,23 @@
 
 extern "C" {
 #include <libavcodec/avcodec.h>
+#include <libavcodec/jni.h>
 }
 
-bool FFDecoder::Open(XParameters params)
+bool FFDecoder::Open(XParameters params, bool isSupportHard)
 {
     if (!params.params) return false;
     AVCodecParameters *codecParams = params.params;
     // 1.查找解码器
     AVCodec *codec = avcodec_find_decoder(codecParams->codec_id);
+    if (isSupportHard) {
+        codec = avcodec_find_decoder_by_name("h264_mediacodec");
+    }
     if (!codec) {
-        XLOGE("FFDecoder:: find decoder failed");
+        XLOGE("FFDecoder:: find decoder %d failed %d", codecParams->codec_id, isSupportHard);
         return false;
     }
-    XLOGI("FFDecoder:: find decoder success");
+    XLOGI("FFDecoder:: find decoder success %d", isSupportHard);
     // 2. 创建解码器上下文并复制参数
     avctx = avcodec_alloc_context3(codec);
     avctx->thread_count = 8; // 设置允许多线程解码
@@ -85,10 +89,22 @@ XData FFDecoder::RecvFrame()
     } else if (avctx->codec_type == AVMEDIA_TYPE_AUDIO) {
         d.size = av_get_bytes_per_sample((AVSampleFormat)frame->format) * frame->nb_samples * 2; // 样本字节数*单通道样本数*通道数
     }
+    d.format = frame->format;
+    if (!isAudio) {
+        XLOGI("FFDecoder:: receive data format is: %d", frame->format);
+    }
     memcpy(d.datas, frame->data, sizeof(d.datas));
     XLOGI("FFDecoder:: RecvFrame() decoder success");
     return d;
 }
+
+
+void FFDecoder::initHard(void *vm)
+{
+    av_jni_set_java_vm(vm, 0);
+}
+
+
 
 
 

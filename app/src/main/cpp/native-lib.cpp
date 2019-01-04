@@ -29,20 +29,19 @@ public:
 
 IVideoView *view  = NULL;
 
-extern "C" JNIEXPORT jstring JNICALL
-Java_com_yuneec_android_xplay_MainActivity_stringFromJNI(
-        JNIEnv* env,
-        jobject /* this */) {
-    std::string hello = "Hello from C++";
+extern "C" JNIEXPORT jint JNICALL
+JNI_OnLoad(JavaVM *vm, void *res)
+{
+    FFDecoder::initHard(vm);
 
     IDumex *de = new FFDumex();
     bool openFlag = de->Open(url);
-    if (!openFlag) return env->NewStringUTF(hello.c_str());
+    if (!openFlag) return -1;
     // TestObserver *testObj = new TestObserver();
     // de->AddObserver(testObj);
 
     IDecoder *vDecoder = new FFDecoder();
-    vDecoder->Open(de->getVideoParams());
+    vDecoder->Open(de->getVideoParams(), true); // 使用硬件解码
 
     IDecoder *aDecoder = new FFDecoder();
     aDecoder->Open(de->getAudioParams());
@@ -71,8 +70,19 @@ Java_com_yuneec_android_xplay_MainActivity_stringFromJNI(
     // XSleep(3000);
     // de->Stop();
 
+    return JNI_VERSION_1_4;
+}
+
+
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_yuneec_android_xplay_MainActivity_stringFromJNI(
+        JNIEnv* env,
+        jobject /* this */) {
+    std::string hello = "Hello from C++";
+
     return env->NewStringUTF(hello.c_str());
 }
+
 
 extern "C"
 JNIEXPORT void JNICALL

@@ -13,7 +13,7 @@ void GLVideoView::Render(XData data) {
     if (!view) return;
     if (!txt) {
         txt = XTexture::Cretea();
-        txt->Init(view); // 同时完成初始化
+        txt->Init(view, (XTextureType)data.format); // 同时完成初始化
     }
     txt->Draw(data.datas, data.width, data.height);
 }

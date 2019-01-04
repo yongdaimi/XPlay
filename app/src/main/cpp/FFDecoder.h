@@ -13,7 +13,9 @@ struct AVFrame;
 class FFDecoder : public IDecoder{
 
 public:
-    virtual bool Open(XParameters params);
+    /** 初始化硬解码 */
+    static void initHard(void *vm);
+    virtual bool Open(XParameters params, bool isSupportHard = false);
     /** 发送数据到解码队列 */
     virtual bool SendPacket(XData pkt);
     /** 从解码队列中获取一帧数据 */
