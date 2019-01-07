@@ -23,7 +23,7 @@ public class XPlay extends GLSurfaceView implements SurfaceHolder.Callback, GLSu
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         InitView(holder.getSurface());
-        setRenderer(this);
+        setRenderer(this); // 解决Android8.0下OpenGl ES 不能播放的问题
     }
 
     @Override

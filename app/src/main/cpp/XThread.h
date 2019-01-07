@@ -12,7 +12,7 @@ class XThread {
 
 public:
     /** 启动线程 */
-    virtual void Start();
+    virtual bool Start();
     /** 停止线程 */
     virtual void Stop();
     /** 线程入口函数 */

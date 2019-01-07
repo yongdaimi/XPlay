@@ -14,11 +14,12 @@ void XSleep(int mis)
     this_thread::sleep_for(du);
 }
 
-void XThread::Start()
+bool XThread::Start()
 {
     isExit = false;
     thread th(&XThread::ThreadMain, this); // 使用C++ 11中的线程库实现
     th.detach(); // 当前线程放弃对该线程控制
+    return true;
 }
 
 // 通过控制isExist安全停止线程，不一定成功

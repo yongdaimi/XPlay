@@ -13,11 +13,11 @@
 #include "FFResample.h"
 #include "IAudioPlayer.h"
 #include "SLAudioPlayer.h"
+#include "IPlayer.h"
 #include <android/native_window_jni.h>
 
 
-static const char *url = "/sdcard/1080.mp4";
-
+static const char *path = "/sdcard/1080.mp4";
 
 class TestObserver : public IObserver {
 public:
@@ -35,40 +35,36 @@ JNI_OnLoad(JavaVM *vm, void *res)
     FFDecoder::initHard(vm);
 
     IDumex *de = new FFDumex();
-    bool openFlag = de->Open(url);
-    if (!openFlag) return -1;
-    // TestObserver *testObj = new TestObserver();
-    // de->AddObserver(testObj);
-
     IDecoder *vDecoder = new FFDecoder();
-    vDecoder->Open(de->getVideoParams(), true); // 使用硬件解码
-
     IDecoder *aDecoder = new FFDecoder();
-    aDecoder->Open(de->getAudioParams());
+    IResample *resample = new FFResample();
+    view = new GLVideoView();
+    IAudioPlayer *audioPlayer = new SLAudioPlayer();
 
     de->AddObserver(vDecoder);
     de->AddObserver(aDecoder);
 
-    view = new GLVideoView();
     vDecoder->AddObserver(view);
-
-    IResample *resample = new FFResample();
-    XParameters outParams = de->getAudioParams();
-    resample->Open(de->getAudioParams(), outParams);
-
     aDecoder->AddObserver(resample);
-    resample->Open(de->getAudioParams());
 
-    IAudioPlayer *audioPlayer = new SLAudioPlayer();
-    audioPlayer->StartPlay(outParams);
     resample->AddObserver(audioPlayer);
 
-    de->Start();
-    vDecoder->Start();
-    aDecoder->Start();
+//    audioPlayer->StartPlay(outParams);
 
+    /*de->Start();
+    vDecoder->Start();
+    aDecoder->Start();*/
     // XSleep(3000);
     // de->Stop();
+
+    // 使用注入的形式设置类中的各项成员变量
+    IPlayer::Get()->demux = de;
+    IPlayer::Get()->vDecoder = vDecoder;
+    IPlayer::Get()->aDecoder = aDecoder;
+    IPlayer::Get()->resample = resample;
+    IPlayer::Get()->videoView = view;
+    IPlayer::Get()->audioPlayer = audioPlayer;
+    IPlayer::Get()->Open(path);
 
     return JNI_VERSION_1_4;
 }
