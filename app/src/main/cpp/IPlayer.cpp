@@ -8,6 +8,8 @@
 #include "IDecoder.h"
 #include "IResample.h"
 #include "XParameters.h"
+#include "IAudioPlayer.h"
+#include "IVideoView.h"
 
 IPlayer* IPlayer::Get(unsigned char index)
 {
@@ -39,12 +41,12 @@ bool IPlayer::Open(const char *path)
     }
 
     /* 重采样部分 这里的音频数据也有可能是可以直接用来播放的数据 */
-    XParameters outParams = demux->getAudioParams();
+    if (outParams.sample_rate <= 0)
+        outParams = demux->getAudioParams();
     if (!resample || !resample->Open(demux->getAudioParams(), outParams))
     {
         XLOGE("IPlayer:: resample open failed");
     }
-
 
     return true;
 }
@@ -53,10 +55,28 @@ bool IPlayer::Open(const char *path)
 
 bool IPlayer::Start()
 {
-
-
+    if (!demux || !demux->Start())
+    {
+        XLOGE("IPlayer:: IPlayer Start() failed");
+        return false;
+    }
+    if (aDecoder)
+        aDecoder->Start();
+    if (audioPlayer)
+        audioPlayer->StartPlay(outParams);
+    if (vDecoder)
+        vDecoder->Start();
     return true;
 }
+
+
+void IPlayer::InitView(void *win)
+{
+    if (videoView)
+        videoView->SetRender(win);
+}
+
+
 
 
 

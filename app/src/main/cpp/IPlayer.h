@@ -7,6 +7,7 @@
 
 
 #include "XThread.h"
+#include "XParameters.h"
 
 class IDumex;
 class IDecoder;
@@ -20,7 +21,10 @@ public:
     static IPlayer* Get(unsigned char index = 0);
     virtual bool Open(const char *path);
     virtual bool Start();
+    virtual void InitView(void *win);
 
+    /** 音频输出参数配置 */
+    XParameters outParams;
     bool isEnableHardDecoder = true;
     IDumex *demux = 0;
     IDecoder *vDecoder = 0;
