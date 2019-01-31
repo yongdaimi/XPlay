@@ -13,6 +13,8 @@ class IResample : public IObserver{
 public:
     /** 输入参数可以直接从解封装器那儿获取，输出参数是需要配置 */
     virtual bool Open(XParameters in, XParameters out = XParameters()) = 0;
+    /** 关闭操作 */
+    virtual void Close() = 0;
     virtual XData Resample(XData inData) = 0;
     virtual void Update(XData data);
     /** 输出的通道数 */

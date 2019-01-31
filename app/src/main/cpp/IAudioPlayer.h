@@ -22,7 +22,7 @@ public:
     virtual XData GetData();
     /** 缓冲队列中的最大元素个数 */
     int maxFrame = 100;
-
+    int pts = 0;
 protected:
     std::list<XData> frames;
     std::mutex  frameMutex;

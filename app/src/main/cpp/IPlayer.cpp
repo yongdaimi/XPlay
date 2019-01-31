@@ -17,12 +17,37 @@ IPlayer* IPlayer::Get(unsigned char index)
     return &p[index];
 }
 
+
+void IPlayer::Main()
+{
+    while (!isExit)
+    {
+        mux.lock();
+        if (!audioPlayer || !vDecoder)
+        {
+            mux.unlock();
+            XSleep(2);
+            continue;
+        }
+        // 同步
+        // 获取音频pts告诉视频
+        int apts = audioPlayer->pts;
+        // XLOGI("IPLayer:: apts = %d",apts);
+        vDecoder->synPts = apts;
+        mux.unlock();
+        XSleep(2);
+    }
+}
+
+
 bool IPlayer::Open(const char *path)
 {
 
+    mux.lock();
     /* 解封装器部分 */
     if (!demux || !demux->Open(path))
     {
+        mux.unlock();
         XLOGE("IPlayer:: IDemux open failed: %s", path);
         return false;
     }
@@ -47,16 +72,17 @@ bool IPlayer::Open(const char *path)
     {
         XLOGE("IPlayer:: resample open failed");
     }
-
+    mux.unlock();
     return true;
 }
 
 
-
 bool IPlayer::Start()
 {
+    mux.lock();
     if (!demux || !demux->Start())
     {
+        mux.unlock();
         XLOGE("IPlayer:: IPlayer Start() failed");
         return false;
     }
@@ -66,6 +92,8 @@ bool IPlayer::Start()
         audioPlayer->StartPlay(outParams);
     if (vDecoder)
         vDecoder->Start();
+    XThread::Start();
+    mux.unlock();
     return true;
 }
 

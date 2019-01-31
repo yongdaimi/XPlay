@@ -16,6 +16,8 @@ class IDecoder : public IObserver{
 public:
     /** 打开解码器，支持硬解码 */
     virtual bool Open(XParameters params, bool isSupportHard = false) = 0;
+    /** 关闭操作 */
+    virtual void Close() = 0;
     /** 发送数据到解码队列 */
     virtual bool SendPacket(XData pkt) = 0;
     /** 从解码队列中获取一帧数据 */
@@ -28,6 +30,10 @@ public:
     bool isAudio = false;
     /** 队列缓冲的最大值 */
     int maxList = 100;
+    /* 同步时间，再次打开文件要清理 */
+    int synPts = 0;
+    /** 表示当前播放的时间 */
+    int pts = 0;
 
 protected:
     virtual void Main();

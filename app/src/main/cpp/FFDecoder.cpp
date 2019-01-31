@@ -13,6 +13,7 @@ extern "C" {
 
 bool FFDecoder::Open(XParameters params, bool isSupportHard)
 {
+    Close();
     if (!params.params) return false;
     AVCodecParameters *codecParams = params.params;
     // 1.查找解码器
@@ -25,6 +26,8 @@ bool FFDecoder::Open(XParameters params, bool isSupportHard)
         return false;
     }
     XLOGI("FFDecoder:: find decoder success %d", isSupportHard);
+
+    mux.lock();
     // 2. 创建解码器上下文并复制参数
     avctx = avcodec_alloc_context3(codec);
     avctx->thread_count = 8; // 设置允许多线程解码
@@ -32,6 +35,7 @@ bool FFDecoder::Open(XParameters params, bool isSupportHard)
     // 3. 打开解码器
     int ret = avcodec_open2(avctx, 0, 0);
     if (ret != 0) {
+        mux.unlock();
         char buf[1024] = {0};
         av_strerror(ret, buf, sizeof(buf));
         XLOGE("FFDecoder:: open codec failed, %s", buf);
@@ -43,7 +47,21 @@ bool FFDecoder::Open(XParameters params, bool isSupportHard)
     } else {
         isAudio = false;
     }
+    mux.unlock();
     return true;
+}
+
+void FFDecoder::Close()
+{
+    mux.lock();
+    pts = 0;
+    if (frame)
+        av_frame_free(&frame);
+    if (avctx) {
+        avcodec_close(avctx);
+        avcodec_free_context(&avctx);
+    }
+    mux.unlock();
 }
 
 bool FFDecoder::SendPacket(XData pkt)
@@ -52,11 +70,14 @@ bool FFDecoder::SendPacket(XData pkt)
         XLOGE("FFDecoder:: SendPacket() failed, pkt is null ");
         return false;
     }
+    mux.lock();
     if (!avctx) {
+        mux.unlock();
         XLOGE("FFDecoder:: SendPacket() failed, avctx is null ");
         return false;
     }
     int ret = avcodec_send_packet(avctx, (AVPacket *)pkt.data);
+    mux.unlock();
     if (ret != 0) {
         XLOGE("FFDecoder:: SendPacket() failed, send pkt failed ");
         return false;
@@ -67,7 +88,9 @@ bool FFDecoder::SendPacket(XData pkt)
 
 XData FFDecoder::RecvFrame()
 {
+    mux.lock();
     if (!avctx) {
+        mux.unlock();
         XLOGE("FFDecoder:: RecvFrame() failed, avctx is null ");
         return XData();
     }
@@ -77,6 +100,7 @@ XData FFDecoder::RecvFrame()
     }
     int ret = avcodec_receive_frame(avctx, frame);
     if (ret != 0) {
+        mux.unlock();
         // XLOGE("FFDecoder:: RecvFrame() failed, avcodec_receive_frame() failed ");
         return XData();
     }
@@ -94,6 +118,9 @@ XData FFDecoder::RecvFrame()
         XLOGI("FFDecoder:: receive data format is: %d", frame->format);
     }
     memcpy(d.datas, frame->data, sizeof(d.datas));
+    d.pts = frame->pts;
+    pts = d.pts;
+    mux.unlock();
     XLOGI("FFDecoder:: RecvFrame() decoder success");
     return d;
 }

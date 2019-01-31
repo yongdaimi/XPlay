@@ -7,6 +7,8 @@
 
 
 #include "IDecoder.h"
+#include <mutex>
+
 
 struct AVCodecContext;
 struct AVFrame;
@@ -16,6 +18,8 @@ public:
     /** 初始化硬解码 */
     static void initHard(void *vm);
     virtual bool Open(XParameters params, bool isSupportHard = false);
+    /** 关闭操作 */
+    virtual void Close();
     /** 发送数据到解码队列 */
     virtual bool SendPacket(XData pkt);
     /** 从解码队列中获取一帧数据 */
@@ -24,8 +28,7 @@ public:
 protected:
     AVCodecContext *avctx = 0;
     AVFrame        *frame = 0;
-
+    std::mutex mux;
 };
-
 
 #endif //XPLAY_FFDECODER_H

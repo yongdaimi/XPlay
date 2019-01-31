@@ -5,6 +5,28 @@
 #include "IAudioPlayer.h"
 #include "XLog.h"
 
+XData IAudioPlayer::GetData()
+{
+    XData d;
+    while (!isExit) {
+        frameMutex.lock();
+        if (!frames.empty()) {
+            d = frames.front();
+            frames.pop_front();
+            frameMutex.unlock();
+            pts = d.pts;
+            return d;
+        }
+        // 如果队列是空的
+        frameMutex.unlock();
+        XSleep(1);
+    }
+
+
+    //未获取数据
+    return d;
+}
+
 
 void IAudioPlayer::Update(XData data)
 {
@@ -25,24 +47,6 @@ void IAudioPlayer::Update(XData data)
     }
 }
 
-
-XData IAudioPlayer::GetData()
-{
-    XData d;
-    while (!isExit) {
-        frameMutex.lock();
-        if (!frames.empty()) {
-            d = frames.front();
-            frames.pop_front();
-            frameMutex.unlock();
-            return d;
-        }
-        // 如果队列是空的
-        frameMutex.unlock();
-        XSleep(1);
-    }
-    return d;
-}
 
 
 

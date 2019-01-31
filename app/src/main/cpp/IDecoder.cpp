@@ -11,6 +11,17 @@ void IDecoder::Main()
 {
     while (!isExit) {
         packsMutex.lock();
+        // 判断音视频同步
+        if(!isAudio && synPts > 0)
+        {
+            if(synPts < pts)
+            {
+                packsMutex.unlock();
+                XSleep(1);
+                continue;
+            }
+        }
+
         if (packs.empty()) {
             packsMutex.unlock();
             XSleep(1);
@@ -27,6 +38,7 @@ void IDecoder::Main()
                 XData frame = RecvFrame(); // 再次调用会复用上次空间，线程不安全
                 if (!frame.data) break; // 如果读不到数据就返回
                 XLOGI("IDecoder:: Receive frame %d", frame.size);
+                pts = frame.pts;
                 // 通知所有观察者
                 this->Notify(frame);
             }

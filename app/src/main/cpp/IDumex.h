@@ -16,6 +16,8 @@ class IDumex : public IObserver{
 public:
     /** 打开文件或者流媒体(rtsp, rtmp, http) */
     virtual bool Open(const char *url) = 0;
+    /** 关闭操作 */
+    virtual void Close() = 0;
     /** 读取一帧数据, 数据由调用者处理 */
     virtual XData Read() = 0;
     /** 获取视频流参数 */
